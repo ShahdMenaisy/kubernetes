@@ -1,0 +1,58 @@
+# sonarqube-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonarqube
+  namespace: sonarqube
+  labels:
+    app: sonarqube
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sonarqube
+  template:
+    metadata:
+      labels:
+        app: sonarqube
+    spec:
+      containers:
+        - name: sonarqube
+          image: sonarqube:lts-community
+          ports:
+            - containerPort: 9000
+          envFrom:
+            - configMapRef:
+                name: sonarqube-config
+            - secretRef:
+                name: sonarqube-secret
+          volumeMounts:
+            - name: sonarqube-volume
+              mountPath: /opt/sonarqube/data
+              subPath: sonarqube/data
+            - name: sonarqube-volume
+              mountPath: /opt/sonarqube/extensions
+              subPath: sonarqube/extensions
+            - name: sonarqube-volume
+              mountPath: /opt/sonarqube/logs
+              subPath: sonarqube/logs
+            - name: sonarqube-volume
+              mountPath: /opt/sonarqube/temp
+              subPath: sonarqube/temp
+      volumes:
+        - name: sonarqube-volume
+          persistentVolumeClaim:
+            claimName: sonarqube-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sonarqube
+  namespace: sonarqube
+spec:
+  type: LoadBalancer
+  selector:
+    app: sonarqube
+  ports:
+    - port: 80
+      targetPort: 9000
