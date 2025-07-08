@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{APP_NAME}}
+  namespace: {{NAMESPACE}}
+spec:
+  replicas: {{REPLICAS}}
+  selector:
+    matchLabels:
+      app: {{APP_LABEL}}
+  template:
+    metadata:
+      name: {{POD_NAME}}
+      labels:
+        app: {{APP_LABEL}}
+    spec:
+      containers:
+        - name: {{CONTAINER_NAME}}
+          image: {{IMAGE_NAME}}
+          ports:
+            - containerPort: {{CONTAINER_PORT}}
+          resources:
+            requests:
+              cpu: "{{CPU_REQUEST}}"
+              memory: "{{MEMORY_REQUEST}}"
+            limits:
+              cpu: "{{CPU_LIMIT}}"
+              memory: "{{MEMORY_LIMIT}}"
+          volumeMounts:
+            - mountPath: {{MOUNT_PATH}}
+              name: {{VOL_NAME}}
+      volumes:
+        - name: {{VOL_NAME}}
+          persistentVolumeClaim:
+            claimName: {{PVC_NAME}}
